@@ -1,19 +1,36 @@
 package ua.nure.ageev.practice2;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class QueueImpl implements Queue {
 
 	public static void main(String[] args) {
-
+		// test7
 		Queue queue = new QueueImpl();
 		queue.enqueue("A");
 		queue.enqueue("B");
 		queue.enqueue("C");
 
-		for (Object element : queue) {
-			System.out.print(element);
-		}
+		Iterator it = queue.iterator();
+
+		System.out.println(it.next());
+		System.out.println(it.next());
+		System.out.println(it.next());
+		it.remove();
+		System.out.println(queue);
+
+		it = queue.iterator();
+
+		System.out.println(it.next());
+		it.remove();
+		System.out.println(queue);
+
+		it = queue.iterator();
+
+		System.out.println(it.next());
+		it.remove();
+		System.out.println(queue);
 
 //		QueueImpl q = new QueueImpl();
 //		q.enqueue("A");
@@ -49,6 +66,12 @@ public class QueueImpl implements Queue {
 
 	@Override
 	public void clear() {
+		for (Node x = head; x != null;) {
+			Node next = x.next;
+			x.data = null;
+			x.next = null;
+			x = next;
+		}
 		head = null;
 		this.size = 0;
 	}
@@ -61,7 +84,33 @@ public class QueueImpl implements Queue {
 	@Override
 	public Iterator<Object> iterator() {
 
-		return (Iterator<Object>) this;
+		return new QueueIterator();
+	}
+
+	Object unlink(Node x) {
+		// assert x != null;
+		final Object element = x.item;
+		final Node next = x.next;
+		final Node prev = x.prev;
+
+		if (prev == null) {
+			first = next;
+		} else {
+			prev.next = next;
+			x.prev = null;
+		}
+
+		if (next == null) {
+			last = prev;
+		} else {
+			next.prev = prev;
+			x.next = null;
+		}
+
+		x.item = null;
+		size--;
+		modCount++;
+		return element;
 	}
 
 	@Override
@@ -96,11 +145,61 @@ public class QueueImpl implements Queue {
 	@Override
 	public String toString() {
 		String str = "[";
-		Node temp = head;
-		while (temp != null) {
-			str += (String) (temp.data) + ", ";
-			temp = temp.next;
+
+		if (head != null) {
+			Node temp = head;
+			while (temp != null) {
+				str += (String) (temp.data) + ", ";
+				temp = temp.next;
+			}
+		} else {
+			str += "";
 		}
+
 		return str + "]";
+	}
+
+	public class QueueIterator implements Iterator<Object> {
+		private Node nextNode;
+		private Node lastReturnedNode;
+		private Node previousNode;
+		private int removed = 0;
+
+		public QueueIterator() {
+			nextNode = head;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return nextNode != null;
+		}
+
+		@Override
+		public Object next() throws NoSuchElementException {
+			if (!this.hasNext()) {
+				throw new NoSuchElementException("end of the iteration");
+			}
+			previousNode = lastReturnedNode;
+			lastReturnedNode = nextNode;
+			nextNode = nextNode.next;
+			return lastReturnedNode.data;
+		}
+
+		public void remove() throws NoSuchElementException {
+			removed++;
+			if (lastReturnedNode == null) {
+				throw new NoSuchElementException("improper iterator state for remove operation");
+			} else {
+
+				Node lastNext = lastReturnedNode.next;
+//				dequeue();
+				if (nextNode == lastReturnedNode) {
+					nextNode = lastNext;
+				} else {
+					lastReturnedNode = null;
+				}
+			}
+		}
+
 	}
 }
