@@ -6,7 +6,9 @@ import java.util.NoSuchElementException;
 public class QueueImpl implements Queue {
 
 	public static void main(String[] args) {
-		// test7
+		// test9
+		// public static void test10() {
+
 		Queue queue = new QueueImpl();
 		queue.enqueue("A");
 		queue.enqueue("B");
@@ -50,17 +52,20 @@ public class QueueImpl implements Queue {
 	}
 
 	private Node head;
+
 	private int size = 0;
 
 	static class Node {
 
 		Object data;
 		Node next;
+		Node prev;
 
 		// Constructor
 		public Node(Object d) {
 			data = d;
 			next = null;
+			prev = null;
 		}
 	}
 
@@ -89,27 +94,31 @@ public class QueueImpl implements Queue {
 
 	Object unlink(Node x) {
 		// assert x != null;
-		final Object element = x.item;
+		final Object element = x.data;
 		final Node next = x.next;
 		final Node prev = x.prev;
 
 		if (prev == null) {
-			first = next;
+			head = next;
 		} else {
 			prev.next = next;
 			x.prev = null;
 		}
 
-		if (next == null) {
-			last = prev;
-		} else {
-			next.prev = prev;
-			x.next = null;
+//		if (next == null) {
+//			last = prev;
+//		} else {
+//			next.prev = prev;
+//			x.next = null;
+//		}
+
+		x.data = null;
+		x = null;
+		size--;
+		if (size == 0) {
+			head = null;
 		}
 
-		x.item = null;
-		size--;
-		modCount++;
 		return element;
 	}
 
@@ -125,6 +134,7 @@ public class QueueImpl implements Queue {
 				tail = tail.next;
 			}
 			tail.next = temp;
+			temp.prev = tail;
 			size++;
 		}
 	}
@@ -149,7 +159,8 @@ public class QueueImpl implements Queue {
 		if (head != null) {
 			Node temp = head;
 			while (temp != null) {
-				str += (String) (temp.data) + ", ";
+				str += (String) (temp.data);
+				str += temp.next != null ? ", " : "";
 				temp = temp.next;
 			}
 		} else {
@@ -188,11 +199,11 @@ public class QueueImpl implements Queue {
 		public void remove() throws NoSuchElementException {
 			removed++;
 			if (lastReturnedNode == null) {
-				throw new NoSuchElementException("improper iterator state for remove operation");
+				throw new IllegalStateException("improper iterator state for remove operation");
 			} else {
 
 				Node lastNext = lastReturnedNode.next;
-//				dequeue();
+				unlink(lastReturnedNode);
 				if (nextNode == lastReturnedNode) {
 					nextNode = lastNext;
 				} else {
