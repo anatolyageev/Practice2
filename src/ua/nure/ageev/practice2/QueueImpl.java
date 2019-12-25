@@ -174,7 +174,7 @@ public class QueueImpl implements Queue {
 		private Node nextNode;
 		private Node lastReturnedNode;
 		private Node previousNode;
-		private int removed = 0;
+		// private int removed = 0;
 
 		public QueueIterator() {
 			nextNode = head;
@@ -197,7 +197,7 @@ public class QueueImpl implements Queue {
 		}
 
 		public void remove() throws NoSuchElementException {
-			removed++;
+			// removed++;
 			if (lastReturnedNode == null) {
 				throw new IllegalStateException("improper iterator state for remove operation");
 			} else {
